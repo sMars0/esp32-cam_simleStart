@@ -1,16 +1,14 @@
 #include "WiFiManager.h"
 #include <WiFi.h>
 
-// Инициализация статических переменных
-const char* WiFiManager::m_ssid = WIFI_SSID;
-const char* WiFiManager::m_password = WIFI_PASSWORD;
-
-WiFiManager::WiFiManager() {
-    // Пустой конструктор
+WiFiManager::WiFiManager(SettingsManager* settingsManager) : settingsManager(settingsManager) {
+    if (!loadWiFiSettings()) {
+        // TODO: Если настройки не загружены, определить действия (например, запуск в режиме конфигурации)
+    }
 }
 
 void WiFiManager::connect() {
-    WiFi.begin(m_ssid, m_password);
+    WiFi.begin(settings.ssid, settings.password);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
@@ -21,7 +19,19 @@ void WiFiManager::connect() {
 }
 
 void WiFiManager::updateCredentials(const char* ssid, const char* password) {
+    strncpy(settings.ssid, ssid, sizeof(settings.ssid));
+    strncpy(settings.password, password, sizeof(settings.password));
+    saveWiFiSettings(ssid, password);
     WiFi.disconnect();
     WiFi.begin(ssid, password);
-    // Сохранение новых учетных данных можно реализовать здесь
+}
+
+bool WiFiManager::loadWiFiSettings() {
+    return settingsManager->load(settings);
+}
+
+bool WiFiManager::saveWiFiSettings(const char* ssid, const char* password) {
+    strncpy(settings.ssid, ssid, sizeof(settings.ssid));
+    strncpy(settings.password, password, sizeof(settings.password));
+    return settingsManager->save(settings);
 }

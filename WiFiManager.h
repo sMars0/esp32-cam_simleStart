@@ -2,16 +2,19 @@
 #define WIFI_MANAGER_H
 
 #include "Config.h"  // Убедитесь, что Config.h включает нужные константы
+#include "SettingsManager.h"
 
 class WiFiManager {
 public:
-    WiFiManager();  // Измените конструктор, чтобы он не требовал параметров
+    WiFiManager(SettingsManager* settingsManager);  // Измените конструктор, чтобы он не требовал параметров
     void connect();
     void updateCredentials(const char* ssid, const char* password);
+    bool loadWiFiSettings();
+    bool saveWiFiSettings(const char* ssid, const char* password);
 
 private:
-    static const char* m_ssid;
-    static const char* m_password;
+    WiFiSettings settings; // Используем структуру для хранения данных
+    SettingsManager* settingsManager;
 };
 
 #endif
